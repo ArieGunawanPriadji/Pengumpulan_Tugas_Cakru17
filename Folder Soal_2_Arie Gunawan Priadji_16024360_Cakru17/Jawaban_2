@@ -1,0 +1,100 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+class Robot {
+public:
+    string name;
+    int health;
+    int attackPower;
+
+    Robot(string n, int h, int a) : name(n), health(h), attackPower(a) {}
+
+    void takeDamage(int damage) {
+        health -= damage;
+        if (health < 0) health = 0;
+    }
+
+    bool isDefeated() const {
+        return health <= 0;
+    }
+};
+
+class Battle {
+public:
+    static void startFight(Robot &robot1, Robot &robot2) {
+        cout << "Battle Start!" << endl;
+        while (!robot1.isDefeated() && !robot2.isDefeated()) {
+            int damage = (rand() % robot1.attackPower) + 1;
+            robot2.takeDamage(damage);
+            cout << robot1.name << " attacks " << robot2.name << " for " << damage << " damage!" << endl;
+
+            if (robot2.isDefeated()) {
+                cout << robot2.name << " is defeated!" << endl;
+                cout << robot1.name << " wins!" << endl;
+                break;
+            }
+
+            damage = (rand() % robot2.attackPower) + 1;
+            robot1.takeDamage(damage);
+            cout << robot2.name << " attacks " << robot1.name << " for " << damage << " damage!" << endl;
+
+            if (robot1.isDefeated()) {
+                cout << robot1.name << " is defeated!" << endl;
+                cout << robot2.name << " wins!" << endl;
+            }
+        }
+    }
+};
+
+class Game {
+private:
+    vector<Robot> robots;
+
+public:
+    void addRobot(const Robot &robot) {
+        robots.push_back(robot);
+    }
+
+    void startGame() {
+        if (robots.size() < 2) {
+            cout << "Not enough robots to start the game." << endl;
+            return;
+        }
+
+        cout << "Choose robots for the battle:" << endl;
+        for (size_t i = 0; i < robots.size(); ++i) {
+            cout << i + 1 << ". " << robots[i].name << endl;
+        }
+
+        int choice1, choice2;
+        cout << "Select the first robot: ";
+        cin >> choice1;
+        cout << "Select the second robot: ";
+        cin >> choice2;
+
+        if (choice1 <= 0 || choice2 <= 0 || choice1 > robots.size() || choice2 > robots.size()) {
+            cout << "Invalid selection. Please restart the game." << endl;
+            return;
+        }
+
+        Battle::startFight(robots[choice1 - 1], robots[choice2 - 1]);
+    }
+};
+
+int main() {
+    srand(static_cast<unsigned>(time(0)));
+
+    Game game;
+    game.addRobot(Robot("RoboOne", 100, 30));
+    game.addRobot(Robot("RoboTwo", 120, 25));
+    game.addRobot(Robot("RoboThree", 80, 35));
+
+    game.startGame();
+
+    return 0;
+}
